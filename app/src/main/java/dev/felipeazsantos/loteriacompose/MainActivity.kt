@@ -22,9 +22,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,13 +35,14 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import dev.felipeazsantos.loteriacompose.ui.component.LoItemType
+import dev.felipeazsantos.loteriacompose.ui.component.LoNumberTextField
 import dev.felipeazsantos.loteriacompose.ui.theme.Green
 import dev.felipeazsantos.loteriacompose.ui.theme.LoteriaComposeTheme
 
@@ -53,15 +55,15 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 NavHost(
                     navController = navController,
-                    startDestination = "home"
+                    startDestination = AppRouter.HOME.route
                 ) {
-                    composable("home") {
+                    composable(AppRouter.HOME.route) {
                         HomeScreen {
-                            navController.navigate("lottery_form")
+                            navController.navigate(AppRouter.LOTTERY_FORM.route)
                         }
                     }
 
-                    composable("lottery_form") {
+                    composable(AppRouter.LOTTERY_FORM.route) {
                         FormScreen()
                     }
                 }
@@ -70,13 +72,24 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+enum class AppRouter(val route: String) {
+    HOME("home"),
+    LOTTERY_FORM("lottery_form")
+}
+
 @Composable
 fun HomeScreen(onClick: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        LotteryItem("Mega Sena", onClick = onClick)
+        Column(
+            modifier = Modifier
+                .wrapContentSize()
+        ) {
+            LotteryItem("Mega Sena", onClick = onClick)
+        }
+
     }
 
 }
@@ -93,23 +106,11 @@ fun LotteryItem(name: String, onClick: () -> Unit) {
                 onClick()
             }
     ) {
-        Column(
-            modifier = Modifier
-                .wrapContentSize()
-                .background(Green)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.trevo),
-                contentDescription = "",
-                modifier = Modifier.size(100.dp).padding(10.dp)
-            )
-            Text(
-                text = name,
-                color = Color.White,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-            )
-        }
+       LoItemType(
+           name = "Mega Sena",
+           color = Color.White,
+           bgColor = Green
+       )
     }
 }
 
@@ -119,29 +120,14 @@ fun FormScreen() {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        var qtdNumber = remember { mutableStateOf("") }
-        var qtdBets = remember { mutableStateOf("") }
+        var qtdNumber by remember { mutableStateOf("") }
+        var qtdBets by remember { mutableStateOf("") }
 
         Column(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(R.drawable.trevo),
-                contentDescription = stringResource(id = R.string.trevo),
-                modifier = Modifier
-                    .size(100.dp)
-                    .padding(10.dp)
-            )
-
-            Text(
-                text = "Mega Sena",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-            )
+            LoItemType("Mega Sena")
 
             Text(
                 text = stringResource(id = R.string.announcement),
@@ -150,55 +136,38 @@ fun FormScreen() {
                     .padding(20.dp)
             )
 
-            OutlinedTextField(
-                value = qtdNumber.value,
-                maxLines = 1,
-                label = {
-                    Text(
-                        stringResource(id = R.string.mega_rule)
-                    )
-                },
-                placeholder = {
-                    Text(
-                        stringResource(id = R.string.quantity)
-                    )
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                ),
-                onValueChange = {
-                    qtdNumber.value = it
+            LoNumberTextField(
+                value = qtdNumber,
+                label = R.string.mega_rule,
+                placeholder = R.string.quantity,
+                imeAction = ImeAction.Next,
+            ) {
+                if (it.length < 3) {
+                    qtdNumber = validateInput(it)
                 }
-            )
+            }
 
-            OutlinedTextField(
-                value = qtdBets.value,
-                maxLines = 1,
-                label = {
-                    Text(
-                        stringResource(id = R.string.bets)
-                    )
-                },
-                placeholder = {
-                    Text(
-                        stringResource(id = R.string.bets_quantity)
-                    )
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
-                ),
-                onValueChange = {
-                    qtdBets.value = it
+            LoNumberTextField(
+                value = qtdBets,
+                label = R.string.bets,
+                placeholder = R.string.bets_quantity,
+                imeAction = ImeAction.Done,
+            ) {
+                if (it.length < 3) {
+                    qtdBets = validateInput(it)
                 }
-            )
+            }
 
             OutlinedButton(onClick = {}) {
                 Text(stringResource(id = R.string.bets_generate))
             }
         }
     }
+}
+
+
+private fun validateInput(input: String): String {
+    return input.filter { it in "0123456789" }
 }
 
 @Preview(showBackground = true)
