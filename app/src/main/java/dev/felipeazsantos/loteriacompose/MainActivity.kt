@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -23,6 +24,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import dev.felipeazsantos.loteriacompose.ui.theme.Green
 import dev.felipeazsantos.loteriacompose.ui.theme.LoteriaComposeTheme
 
@@ -32,31 +36,48 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LoteriaComposeTheme {
-                HomeScreen()
+                val navController = rememberNavController()
+                NavHost(
+                    navController = navController,
+                    startDestination = "home"
+                ) {
+                    composable("home") {
+                        HomeScreen {
+                            navController.navigate("lottery_form")
+                        }
+                    }
+
+                    composable("lottery_form") {
+                        FormScreen()
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(onClick: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        LotteryItem("Mega Sena")
+        LotteryItem("Mega Sena", onClick = onClick)
     }
 
 }
 
 @Composable
-fun LotteryItem(name: String) {
+fun LotteryItem(name: String, onClick: () -> Unit) {
     Card(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 8.dp
         ),
         modifier = Modifier
             .wrapContentSize()
+            .clickable{
+                onClick()
+            }
     ) {
         Column(
             modifier = Modifier
@@ -78,10 +99,30 @@ fun LotteryItem(name: String) {
     }
 }
 
+@Composable
+fun FormScreen() {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Green
+    ) {
+
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun HomeScreenPreview() {
     LoteriaComposeTheme {
-        HomeScreen()
+        HomeScreen {
+
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun FormScreenPreview() {
+    LoteriaComposeTheme {
+        FormScreen()
     }
 }
