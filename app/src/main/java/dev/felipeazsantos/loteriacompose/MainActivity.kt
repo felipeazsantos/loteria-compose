@@ -65,13 +65,23 @@ class MainActivity : ComponentActivity() {
                     startDestination = AppRouter.HOME.route
                 ) {
                     composable(AppRouter.HOME.route) {
-                        HomeScreen {
-                            navController.navigate(AppRouter.LOTTERY_FORM.route)
+                        HomeScreen { item ->
+                           val router = when (item.id) {
+                               1 -> AppRouter.MEGA_SENA
+                               2 -> AppRouter.QUINA
+                               else -> AppRouter.HOME
+                           }
+                            navController.navigate(router.route)
+
                         }
                     }
 
-                    composable(AppRouter.LOTTERY_FORM.route) {
-                        FormScreen()
+                    composable(AppRouter.MEGA_SENA.route) {
+                        MegaScreen()
+                    }
+
+                    composable(AppRouter.QUINA.route) {
+                        QuinaScreen()
                     }
                 }
             }
@@ -81,11 +91,12 @@ class MainActivity : ComponentActivity() {
 
 enum class AppRouter(val route: String) {
     HOME("home"),
-    LOTTERY_FORM("lottery_form")
+    MEGA_SENA("megasena"),
+    QUINA("quina")
 }
 
 @Composable
-fun HomeScreen(onClick: () -> Unit) {
+fun HomeScreen(onClick: (MainItem) -> Unit) {
     val mainItems = mutableListOf(
         MainItem(1, "Mega Sena", Green, R.drawable.trevo),
         MainItem(2, "Quina", Blue, R.drawable.trevo_blue)
@@ -100,7 +111,9 @@ fun HomeScreen(onClick: () -> Unit) {
             columns = GridCells.Fixed(2),
         ) {
             items(mainItems) {
-                LotteryItem(it, onClick = onClick)
+                LotteryItem(it) {
+                    onClick(it)
+                }
             }
         }
     }
@@ -133,7 +146,17 @@ fun LotteryItem(item: MainItem, onClick: () -> Unit) {
 }
 
 @Composable
-fun FormScreen() {
+fun QuinaScreen() {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color.Gray
+    ) {
+
+    }
+}
+
+@Composable
+fun MegaScreen() {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -285,8 +308,8 @@ fun HomeScreenPreview() {
 
 @Preview(showBackground = true)
 @Composable
-fun FormScreenPreview() {
+fun MegaScreenPreview() {
     LoteriaComposeTheme {
-        FormScreen()
+        MegaScreen()
     }
 }
