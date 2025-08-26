@@ -7,12 +7,21 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import dev.felipeazsantos.loteriacompose.compose.LoteriaApp
+import dev.felipeazsantos.loteriacompose.data.AppDatabase
+import dev.felipeazsantos.loteriacompose.data.Bet
 import dev.felipeazsantos.loteriacompose.ui.theme.LoteriaComposeTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        Thread {
+            val db = AppDatabase.getInstance(this)
+            val bet = Bet(type = "Mega", numbers = "1,2,3,4,5,6")
+            db.betDao().insert(bet)
+        }
+
         setContent {
             LoteriaComposeTheme {
                 LoteriaApp()
