@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -97,7 +100,7 @@ fun LotteryItem(name: String, onClick: () -> Unit) {
         ),
         modifier = Modifier
             .wrapContentSize()
-            .clickable{
+            .clickable {
                 onClick()
             }
     ) {
@@ -115,15 +118,20 @@ fun FormScreen() {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
+        val errorBets = stringResource(id = R.string.error_bets)
+        val errorNumbers = stringResource(id = R.string.error_numbers)
         var qtdNumber by remember { mutableStateOf("") }
         var qtdBets by remember { mutableStateOf("") }
         var result by remember { mutableStateOf("") }
         var snackBarHostState by remember { mutableStateOf(SnackbarHostState()) }
         val scope = rememberCoroutineScope()
+        val keyboardController = LocalSoftwareKeyboardController.current
+        val scrollState = rememberScrollState()
 
         Column(
             verticalArrangement = Arrangement.spacedBy(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.verticalScroll(scrollState)
         ) {
             LoItemType("Mega Sena")
 
@@ -159,22 +167,27 @@ fun FormScreen() {
             OutlinedButton(
                 enabled = qtdNumber.isNotEmpty() && qtdBets.isNotEmpty(),
                 onClick = {
-                    if (qtdBets.toInt() < 1 || qtdBets.toInt() > 10) {
+                    val bets = qtdBets.toInt()
+                    val numbers = qtdNumber.toInt()
+
+                    if (bets < 1 || bets > 10) {
                         scope.launch {
-                            snackBarHostState.showSnackbar("Máximo número de apostas permitido: 10")
+                            snackBarHostState.showSnackbar(errorBets)
                         }
-                    } else if (qtdNumber.toInt() < 6  || qtdNumber.toInt() > 15) {
+                    } else if (numbers < 6 || numbers > 15) {
                         scope.launch {
-                            snackBarHostState.showSnackbar("Números devem ser de 6 à 15")
+                            snackBarHostState.showSnackbar(errorNumbers)
                         }
                     } else {
                         result = ""
-                        for (i in 1 .. qtdBets.toInt()) {
+                        for (i in 1..bets) {
                             result += "[$i] "
-                            result += numberGenerator(qtdNumber.toInt())
+                            result += numberGenerator(numbers)
                             result += "\n\n"
                         }
                     }
+
+                    keyboardController?.hide()
                 }
             ) {
                 Text(stringResource(id = R.string.bets_generate))
