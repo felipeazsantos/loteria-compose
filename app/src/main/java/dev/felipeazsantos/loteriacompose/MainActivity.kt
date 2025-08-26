@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -41,8 +43,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import dev.felipeazsantos.loteriacompose.model.MainItem
 import dev.felipeazsantos.loteriacompose.ui.component.LoItemType
 import dev.felipeazsantos.loteriacompose.ui.component.LoNumberTextField
+import dev.felipeazsantos.loteriacompose.ui.theme.Blue
 import dev.felipeazsantos.loteriacompose.ui.theme.Green
 import dev.felipeazsantos.loteriacompose.ui.theme.LoteriaComposeTheme
 import kotlinx.coroutines.launch
@@ -81,21 +85,25 @@ enum class AppRouter(val route: String) {
 
 @Composable
 fun HomeScreen(onClick: () -> Unit) {
+    val mainItems = mutableListOf(
+        MainItem(1, "Mega Sena", Green, R.drawable.trevo),
+        MainItem(2, "Quina", Blue, R.drawable.trevo_blue)
+    )
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column(
-            modifier = Modifier
-                .wrapContentSize()
-        ) {
-            LotteryItem("Mega Sena", onClick = onClick)
+        LazyColumn {
+            items(mainItems) {
+                LotteryItem(it, onClick = onClick)
+            }
         }
     }
 }
 
 @Composable
-fun LotteryItem(name: String, onClick: () -> Unit) {
+fun LotteryItem(item: MainItem, onClick: () -> Unit) {
     Card(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 8.dp
@@ -106,11 +114,17 @@ fun LotteryItem(name: String, onClick: () -> Unit) {
                 onClick()
             }
     ) {
-       LoItemType(
-           name = "Mega Sena",
-           color = Color.White,
-           bgColor = Green
-       )
+      Column(
+          modifier = Modifier
+              .wrapContentSize()
+      ) {
+          LoItemType(
+              name = item.name,
+              icon = item.icon,
+              color = Color.White,
+              bgColor = item.color
+          )
+      }
     }
 }
 

@@ -1,5 +1,6 @@
 package dev.felipeazsantos.loteriacompose.ui.component
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -60,6 +61,7 @@ fun LoNumberTextField(
 @Composable
 fun LoItemType(
     name: String,
+    @DrawableRes icon: Int = R.drawable.trevo,
     color: Color = Color.Black,
     bgColor: Color = Color.Transparent,
 ) {
@@ -70,7 +72,7 @@ fun LoItemType(
             .background(bgColor)
     ) {
         Image(
-            painter = painterResource(R.drawable.trevo),
+            painter = painterResource(id = icon),
             contentDescription = stringResource(id = R.string.trevo),
             modifier = Modifier
                 .size(100.dp)
