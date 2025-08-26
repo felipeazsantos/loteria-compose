@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +22,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -120,10 +122,13 @@ fun FormScreen() {
     ) {
         val errorBets = stringResource(id = R.string.error_bets)
         val errorNumbers = stringResource(id = R.string.error_numbers)
+
         var qtdNumber by remember { mutableStateOf("") }
         var qtdBets by remember { mutableStateOf("") }
         var result by remember { mutableStateOf("") }
         var snackBarHostState by remember { mutableStateOf(SnackbarHostState()) }
+        var showAlertDialog by remember { mutableStateOf(false) }
+
         val scope = rememberCoroutineScope()
         val keyboardController = LocalSoftwareKeyboardController.current
         val scrollState = rememberScrollState()
@@ -185,6 +190,8 @@ fun FormScreen() {
                             result += numberGenerator(numbers)
                             result += "\n\n"
                         }
+
+                        showAlertDialog = true
                     }
 
                     keyboardController?.hide()
@@ -202,6 +209,32 @@ fun FormScreen() {
             SnackbarHost (
                 modifier = Modifier.align(Alignment.BottomCenter),
                 hostState = snackBarHostState,
+            )
+        }
+
+        if (showAlertDialog) {
+            AlertDialog(
+                onDismissRequest = {},
+                confirmButton = {
+                    TextButton(onClick = {
+                        showAlertDialog = false
+                    }) {
+                        Text(text = stringResource(id = android.R.string.ok))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        showAlertDialog = false
+                    }) {
+                        Text(text = stringResource(id = android.R.string.cancel))
+                    }
+                },
+                title = {
+                    Text(text = stringResource(id = R.string.app_name))
+                },
+                text = {
+                    Text(text = stringResource(id = R.string.good_luck))
+                }
             )
         }
     }
