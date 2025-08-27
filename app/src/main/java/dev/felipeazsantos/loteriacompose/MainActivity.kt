@@ -27,13 +27,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LoteriaComposeTheme {
-//                LoteriaApp()
-
-                val list = listOf("Magesena", "quina", "lotofacil")
-
-                Column(modifier = Modifier.fillMaxSize().padding(20.dp)) {
-//                    AutoTextDropDown(list = list)
-                }
+                LoteriaApp()
             }
         }
     }
