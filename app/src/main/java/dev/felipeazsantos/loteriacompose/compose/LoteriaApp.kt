@@ -52,7 +52,11 @@ fun LoteriaAppNavHost(navController: NavHostController, modifier: Modifier) {
         }
 
         composable(AppRouter.MEGA_SENA.route) {
-            MegaScreen { type ->
+            MegaScreen(
+                onBlackClick = {
+                    navController.navigate(AppRouter.HOME.route)
+                }
+            ) { type ->
                 navController.navigate("${AppRouter.BET_LIST_DETAIL.route}/${type}")
             }
         }

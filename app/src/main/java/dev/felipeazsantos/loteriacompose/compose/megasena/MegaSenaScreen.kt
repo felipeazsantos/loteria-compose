@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,22 +50,28 @@ import java.util.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MegaScreen(onClick: (String) -> Unit) {
-
-
+fun MegaScreen(onBlackClick: () -> Unit, onMenuClick: (String) -> Unit) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-
-
         Scaffold(
             topBar = {
                 TopAppBar(
                     title = { Text("Apostar") },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            onBlackClick()
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = ""
+                            )
+                        }
+                    },
                     actions = {
                         IconButton(onClick = {
-                            onClick("megasena")
+                            onMenuClick("megasena")
                         }) {
                             Icon(
                                 imageVector = Icons.Filled.List,
@@ -178,7 +185,7 @@ fun MegaSenaContentScreen(modifier: Modifier) {
     }
 
     Box {
-        SnackbarHost (
+        SnackbarHost(
             modifier = Modifier.align(Alignment.BottomCenter),
             hostState = snackBarHostState,
         )
@@ -218,7 +225,7 @@ fun MegaSenaContentScreen(modifier: Modifier) {
     }
 }
 
-private fun numberGenerator(qtd: Int) : String {
+private fun numberGenerator(qtd: Int): String {
     val numbers = mutableSetOf<Int>()
 
     while (numbers.size < qtd) {
@@ -237,7 +244,7 @@ private fun validateInput(input: String): String {
 @Composable
 fun MegaScreenPreview() {
     LoteriaComposeTheme {
-        MegaScreen{
+        MegaScreen(onBlackClick = {}) {
 
         }
     }
