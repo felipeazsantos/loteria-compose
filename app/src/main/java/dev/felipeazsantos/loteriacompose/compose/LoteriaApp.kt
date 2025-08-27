@@ -1,6 +1,9 @@
 package dev.felipeazsantos.loteriacompose.compose
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -14,8 +17,13 @@ import dev.felipeazsantos.loteriacompose.compose.quina.QuinaScreen
 
 @Composable
 fun LoteriaApp() {
-    val navController = rememberNavController()
-    LoteriaAppNavHost(navController)
+    Scaffold { paddingValues ->
+        val navController = rememberNavController()
+        LoteriaAppNavHost(
+            navController = navController,
+            modifier = Modifier.padding(paddingValues)
+        )
+    }
 }
 
 enum class AppRouter(val route: String) {
@@ -26,10 +34,11 @@ enum class AppRouter(val route: String) {
 }
 
 @Composable
-fun LoteriaAppNavHost(navController: NavHostController) {
+fun LoteriaAppNavHost(navController: NavHostController, modifier: Modifier) {
     NavHost(
         navController = navController,
-        startDestination = AppRouter.HOME.route
+        startDestination = AppRouter.HOME.route,
+        modifier = modifier
     ) {
         composable(AppRouter.HOME.route) {
             HomeScreen { item ->
