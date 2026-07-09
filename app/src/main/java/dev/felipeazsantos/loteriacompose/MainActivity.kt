@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import dev.felipeazsantos.loteriacompose.ui.component.LoItemType
+import dev.felipeazsantos.loteriacompose.ui.component.LoNumberTextField
 import dev.felipeazsantos.loteriacompose.ui.theme.Green
 import dev.felipeazsantos.loteriacompose.ui.theme.LoteriaComposeTheme
 
@@ -97,22 +99,8 @@ fun FormScreen() {
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.trevo),
-                contentDescription = stringResource(R.string.trevo),
-                modifier = Modifier
-                    .size(100.dp)
-                    .padding(10.dp)
-            )
-
-            Text(
-                text = "Mega Sena",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-
+            LoItemType(
+                name = "Mega Sena"
             )
 
             Text(
@@ -121,45 +109,26 @@ fun FormScreen() {
                 modifier = Modifier.padding(all = 20.dp)
             )
 
-            OutlinedTextField(
+            LoNumberTextField(
                 value = qtdNumbers,
-                maxLines = 1,
-                label = {
-                    Text(stringResource(id = R.string.mega_rule))
-                },
-                placeholder = {
-                    Text(stringResource(id = R.string.quantity))
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                ),
-                onValueChange = {
-                    if (it.length < 3) {
-                        qtdNumbers = validateInput(it)
-                    }
+                label = R.string.trevo,
+                placeholder = R.string.quantity,
+                ) {
+                if (it.length < 3) {
+                    qtdNumbers = validateInput(it)
                 }
-            )
+            }
 
-            OutlinedTextField(
+            LoNumberTextField(
                 value = qtdBets,
-                maxLines = 1,
-                label = {
-                    Text(stringResource(id = R.string.bets))
-                },
-                placeholder = {
-                    Text(stringResource(id = R.string.bets_quantity))
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
-                ),
-                onValueChange = {
-                    if (it.length < 3) {
-                        qtdBets = validateInput(it)
-                    }
+                label = R.string.trevo,
+                placeholder = R.string.quantity,
+                imeAction = ImeAction.Done
+            ) {
+                if (it.length < 3) {
+                    qtdBets = validateInput(it)
                 }
-            )
+            }
 
             OutlinedButton(onClick = {}) {
                 Text(stringResource(id = R.string.bets_generate))
@@ -184,20 +153,11 @@ fun LotteryItem(name: String, onClick: () -> Unit = {}) {
         Column(
             modifier = Modifier
                 .wrapContentSize()
-                .background(Green)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.trevo),
-                contentDescription = "",
-                modifier = Modifier
-                    .size(100.dp)
-                    .padding(10.dp)
-            )
-
-            Text(
-                text = name, style = TextStyle(
-                    color = Color.White
-                ), modifier = Modifier.align(Alignment.CenterHorizontally)
+            LoItemType(
+                name = "Mega Sena",
+                bgColor = Green,
+                color = Color.White
             )
         }
     }
