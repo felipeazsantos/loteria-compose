@@ -22,8 +22,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,17 +53,24 @@ class MainActivity : ComponentActivity() {
         setContent {
             LoteriaComposeTheme {
                 val navController = rememberNavController()
-                NavHost(navController = navController, startDestination = "home") {
-                    composable("home") {
+                NavHost(
+                    navController = navController,
+                    startDestination = AppRouter.HOME.route
+                ) {
+                    composable(AppRouter.HOME.route) {
                         HomeScreen() {
-                            navController.navigate("form")
+                            navController.navigate(AppRouter.FORM.route)
                         }
                     }
-                    composable("form") { FormScreen() }
+                    composable(AppRouter.FORM.route) { FormScreen() }
                 }
             }
         }
     }
+}
+
+enum class AppRouter(val route: String) {
+    HOME("home"), FORM("form")
 }
 
 @Composable
@@ -81,8 +90,8 @@ fun FormScreen() {
     Surface(
         modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
     ) {
-        var qtdNumbers = remember { mutableStateOf("") }
-        var qtdBets = remember { mutableStateOf("") }
+        var qtdNumbers by remember { mutableStateOf("") }
+        var qtdBets by remember { mutableStateOf("") }
 
         Column(
             verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -113,7 +122,7 @@ fun FormScreen() {
             )
 
             OutlinedTextField(
-                value = qtdNumbers.value,
+                value = qtdNumbers,
                 maxLines = 1,
                 label = {
                     Text(stringResource(id = R.string.mega_rule))
@@ -125,11 +134,15 @@ fun FormScreen() {
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 ),
-                onValueChange = { qtdNumbers.value = it }
+                onValueChange = {
+                    if (it.length < 3) {
+                        qtdNumbers = validateInput(it)
+                    }
+                }
             )
 
             OutlinedTextField(
-                value = qtdBets.value,
+                value = qtdBets,
                 maxLines = 1,
                 label = {
                     Text(stringResource(id = R.string.bets))
@@ -141,7 +154,11 @@ fun FormScreen() {
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done
                 ),
-                onValueChange = { qtdBets.value = it }
+                onValueChange = {
+                    if (it.length < 3) {
+                        qtdBets = validateInput(it)
+                    }
+                }
             )
 
             OutlinedButton(onClick = {}) {
@@ -149,6 +166,10 @@ fun FormScreen() {
             }
         }
     }
+}
+
+private fun validateInput(input: String): String {
+    return input.filter { it.isDigit() }
 }
 
 @Composable
