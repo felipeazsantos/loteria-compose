@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,20 +11,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -41,22 +36,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import dev.felipeazsantos.loteriacompose.model.MainItem
 import dev.felipeazsantos.loteriacompose.ui.component.LoItemType
 import dev.felipeazsantos.loteriacompose.ui.component.LoNumberTextField
+import dev.felipeazsantos.loteriacompose.ui.theme.Blue
 import dev.felipeazsantos.loteriacompose.ui.theme.Green
 import dev.felipeazsantos.loteriacompose.ui.theme.LoteriaComposeTheme
 import kotlinx.coroutines.launch
@@ -91,13 +82,23 @@ enum class AppRouter(val route: String) {
 
 @Composable
 fun HomeScreen(onClick: () -> Unit) {
+    val mainItems = mutableListOf(
+        MainItem(1, "Mega Sena", Green, R.drawable.trevo),
+        MainItem(2, "Quina", Blue, R.drawable.trevo_blue)
+    )
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background)
 
     ) {
-        LotteryItem("Mega Sena", onClick = onClick)
+        LazyColumn {
+            items(mainItems) {
+                LotteryItem(it, onClick = onClick)
+            }
+        }
+
     }
 }
 
@@ -111,7 +112,6 @@ fun FormScreen() {
         val snackBarHostState by remember { mutableStateOf(SnackbarHostState()) }
         var result by remember { mutableStateOf("") }
         var showAlertDialog by remember {  mutableStateOf(false) }
-
 
         val keyboardController = LocalSoftwareKeyboardController.current
         val scrollState = rememberScrollState()
@@ -241,7 +241,7 @@ private fun validateInput(input: String): String {
 }
 
 @Composable
-fun LotteryItem(name: String, onClick: () -> Unit = {}) {
+fun LotteryItem(item: MainItem, onClick: () -> Unit = {}) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         modifier = Modifier
@@ -254,8 +254,9 @@ fun LotteryItem(name: String, onClick: () -> Unit = {}) {
                 .wrapContentSize()
         ) {
             LoItemType(
-                name = "Mega Sena",
-                bgColor = Green,
+                name = item.name,
+                icon = item.icon,
+                bgColor = item.color,
                 color = Color.White
             )
         }
