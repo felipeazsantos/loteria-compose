@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -29,6 +30,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -95,24 +97,7 @@ fun HomeScreen(onClick: () -> Unit) {
             .background(color = MaterialTheme.colorScheme.background)
 
     ) {
-        LazyColumn() {
-            val fakeList = listOf("abc", "def", "123")
-            items(fakeList) {
-                Button(onClick = onClick) {
-                    Text(text = it)
-                }
-            }
-
-//            for (i in 0..100) {
-//                item {
-//                    Button(onClick = {}) {
-//                        Text(text = "Olá mundo $i")
-//                    }
-//                }
-//            }
-        }
-
-//        LotteryItem("Mega Sena", onClick = onClick)
+        LotteryItem("Mega Sena", onClick = onClick)
     }
 }
 
@@ -124,11 +109,14 @@ fun FormScreen() {
         var qtdNumbers by remember { mutableStateOf("") }
         var qtdBets by remember { mutableStateOf("") }
         val snackBarHostState by remember { mutableStateOf(SnackbarHostState()) }
-        val scope = rememberCoroutineScope()
         var result by remember { mutableStateOf("") }
+        var showAlertDialog by remember {  mutableStateOf(false) }
+
 
         val keyboardController = LocalSoftwareKeyboardController.current
         val scrollState = rememberScrollState()
+        val scope = rememberCoroutineScope()
+
 
         Column(
             verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -187,7 +175,7 @@ fun FormScreen() {
                             result += numberGenerator(numbers)
                             result += "\n\n"
                         }
-
+                        showAlertDialog = true
                     }
 
                     keyboardController?.hide()
@@ -205,6 +193,31 @@ fun FormScreen() {
                 hostState = snackBarHostState
             )
         }
+
+        if (showAlertDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    showAlertDialog = false
+                },
+                confirmButton = {
+                    TextButton(onClick = { showAlertDialog = false}) {
+                        Text(text = stringResource(android.R.string.ok))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showAlertDialog = false}) {
+                        Text(text = stringResource(android.R.string.cancel))
+                    }
+                },
+                title = {
+                    Text(text = stringResource(id = R.string.app_name))
+                },
+                text = {
+                    Text(text = stringResource(id = R.string.good_luck))
+                }
+            )
+        }
+
     }
 }
 
