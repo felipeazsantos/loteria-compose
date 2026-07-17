@@ -8,27 +8,37 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -47,6 +57,8 @@ import dev.felipeazsantos.loteriacompose.ui.component.LoItemType
 import dev.felipeazsantos.loteriacompose.ui.component.LoNumberTextField
 import dev.felipeazsantos.loteriacompose.ui.theme.Green
 import dev.felipeazsantos.loteriacompose.ui.theme.LoteriaComposeTheme
+import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,7 +95,24 @@ fun HomeScreen(onClick: () -> Unit) {
             .background(color = MaterialTheme.colorScheme.background)
 
     ) {
-        LotteryItem("Mega Sena", onClick = onClick)
+        LazyColumn() {
+            val fakeList = listOf("abc", "def", "123")
+            items(fakeList) {
+                Button(onClick = onClick) {
+                    Text(text = it)
+                }
+            }
+
+//            for (i in 0..100) {
+//                item {
+//                    Button(onClick = {}) {
+//                        Text(text = "Olá mundo $i")
+//                    }
+//                }
+//            }
+        }
+
+//        LotteryItem("Mega Sena", onClick = onClick)
     }
 }
 
@@ -94,10 +123,17 @@ fun FormScreen() {
     ) {
         var qtdNumbers by remember { mutableStateOf("") }
         var qtdBets by remember { mutableStateOf("") }
+        val snackBarHostState by remember { mutableStateOf(SnackbarHostState()) }
+        val scope = rememberCoroutineScope()
+        var result by remember { mutableStateOf("") }
+
+        val keyboardController = LocalSoftwareKeyboardController.current
+        val scrollState = rememberScrollState()
 
         Column(
             verticalArrangement = Arrangement.spacedBy(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.verticalScroll(scrollState)
         ) {
             LoItemType(
                 name = "Mega Sena"
@@ -111,9 +147,9 @@ fun FormScreen() {
 
             LoNumberTextField(
                 value = qtdNumbers,
-                label = R.string.trevo,
+                label = R.string.quantity_label,
                 placeholder = R.string.quantity,
-                ) {
+            ) {
                 if (it.length < 3) {
                     qtdNumbers = validateInput(it)
                 }
@@ -121,8 +157,8 @@ fun FormScreen() {
 
             LoNumberTextField(
                 value = qtdBets,
-                label = R.string.trevo,
-                placeholder = R.string.quantity,
+                label = R.string.bets_quantity_label,
+                placeholder = R.string.bets_quantity,
                 imeAction = ImeAction.Done
             ) {
                 if (it.length < 3) {
@@ -130,11 +166,61 @@ fun FormScreen() {
                 }
             }
 
-            OutlinedButton(onClick = {}) {
+            OutlinedButton(
+                enabled = qtdNumbers.isNotEmpty() && qtdBets.isNotEmpty(),
+                onClick = {
+                    val bets = qtdBets.toInt()
+                    val numbers = qtdNumbers.toInt()
+                    if (bets < 1 || bets > 10) {
+                        scope.launch {
+                            snackBarHostState.showSnackbar("Máximo número de apostas permitida é 10")
+                        }
+                    } else if (numbers < 6 || numbers > 15) {
+                        scope.launch {
+                            snackBarHostState.showSnackbar("Números devem ser de 6 à 15")
+                        }
+                    } else {
+                        result = ""
+
+                        for (i in 1..bets) {
+                            result += "[$i]"
+                            result += numberGenerator(numbers)
+                            result += "\n\n"
+                        }
+
+                    }
+
+                    keyboardController?.hide()
+                }
+            ) {
                 Text(stringResource(id = R.string.bets_generate))
             }
+
+            Text(text = result)
+        }
+
+        Box {
+            SnackbarHost(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                hostState = snackBarHostState
+            )
         }
     }
+}
+
+private fun numberGenerator(qtd: Int): String {
+    val numbers = mutableSetOf<Int>()
+
+    while (true) {
+        val n = Random.nextInt(60) + 1
+        numbers.add(n)
+
+        if (numbers.size == qtd) {
+            break
+        }
+    }
+
+    return numbers.joinToString(" - ")
 }
 
 private fun validateInput(input: String): String {

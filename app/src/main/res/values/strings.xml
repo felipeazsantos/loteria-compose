@@ -7,4 +7,6 @@
     <string name="bets">Quantidade de apostas</string>
     <string name="bets_quantity">Quantas apostas irá tentar?</string>
     <string name="bets_generate">Gerar apostas</string>
+    <string name="quantity_label">De 6 à 15 números</string>
+    <string name="bets_quantity_label">Quantidade de apostas</string>
 </resources>
