@@ -67,10 +67,17 @@ class MainActivity : ComponentActivity() {
                 ) {
                     composable(AppRouter.HOME.route) {
                         HomeScreen() {
-                            navController.navigate(AppRouter.FORM.route)
+                            val router = when (it.id) {
+                                1 -> AppRouter.MEGA_SENA
+                                2 -> AppRouter.QUINA
+                                else -> AppRouter.HOME
+                            }
+
+                            navController.navigate(router.route)
                         }
                     }
-                    composable(AppRouter.FORM.route) { FormScreen() }
+                    composable(AppRouter.MEGA_SENA.route) { MegaScreen() }
+                    composable(AppRouter.MEGA_SENA.route) { QuinaScreen() }
                 }
             }
         }
@@ -78,11 +85,11 @@ class MainActivity : ComponentActivity() {
 }
 
 enum class AppRouter(val route: String) {
-    HOME("home"), FORM("form")
+    HOME("home"), MEGA_SENA("megasena"), QUINA("quina")
 }
 
 @Composable
-fun HomeScreen(onClick: () -> Unit) {
+fun HomeScreen(onClick: (MainItem) -> Unit) {
     val mainItems = mutableListOf(
         MainItem(1, "Mega Sena", Green, R.drawable.trevo),
         MainItem(2, "Quina", Blue, R.drawable.trevo_blue)
@@ -99,7 +106,9 @@ fun HomeScreen(onClick: () -> Unit) {
             columns = GridCells.Fixed(2)
         ) {
             items(mainItems) {
-                LotteryItem(it, onClick = onClick)
+                LotteryItem(it) {
+                    onClick(it)
+                }
             }
         }
 
@@ -107,7 +116,7 @@ fun HomeScreen(onClick: () -> Unit) {
 }
 
 @Composable
-fun FormScreen() {
+fun MegaScreen() {
     Surface(
         modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
     ) {
@@ -225,6 +234,13 @@ fun FormScreen() {
     }
 }
 
+@Composable
+fun QuinaScreen() {
+    Surface(
+        modifier = Modifier.fillMaxSize()
+    ) { }
+}
+
 private fun numberGenerator(qtd: Int): String {
     val numbers = mutableSetOf<Int>()
 
@@ -279,6 +295,6 @@ fun HomeScreenPreview() {
 @Composable
 fun FormScreenPreview() {
     LoteriaComposeTheme {
-        FormScreen()
+        MegaScreen()
     }
 }
