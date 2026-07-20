@@ -11,5 +11,5 @@ data class Bet(
     val id: Int = 0,
     val type: String,
     val numbers: String,
-//    val date: Date = Date()
+    val date: Date = Date()
 )

@@ -16,7 +16,10 @@ class MainActivity : ComponentActivity() {
 
         val db = AppDatabase.getInstance(this)
         val bet = Bet(type = "mega", numbers = "1,2,3,5,6")
-        db.betDao().insert(bet)
+
+        Thread {
+            db.betDao().insert(bet)
+        }.start()
 
         setContent {
             LoteriaComposeTheme {
