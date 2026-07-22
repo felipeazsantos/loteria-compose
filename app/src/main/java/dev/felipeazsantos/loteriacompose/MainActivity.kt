@@ -13,14 +13,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        val db = AppDatabase.getInstance(this)
-        val bet = Bet(type = "mega", numbers = "1,2,3,5,6")
-
-        Thread {
-            db.betDao().insert(bet)
-        }.start()
-
         setContent {
             LoteriaComposeTheme {
                 LoteriaApp()

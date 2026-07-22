@@ -23,13 +23,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import dev.felipeazsantos.loteriacompose.App
 import dev.felipeazsantos.loteriacompose.R
+import dev.felipeazsantos.loteriacompose.data.Bet
 import dev.felipeazsantos.loteriacompose.ui.component.LoItemType
 import dev.felipeazsantos.loteriacompose.ui.component.LoNumberTextField
 import dev.felipeazsantos.loteriacompose.ui.theme.LoteriaComposeTheme
@@ -39,9 +42,13 @@ import kotlin.random.Random
 
 @Composable
 fun MegaScreen() {
+    val resultsToSave = mutableListOf<String>()
+
     Surface(
         modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
     ) {
+        val db = (LocalContext.current.applicationContext as App).db
+
         var qtdNumbers by remember { mutableStateOf("") }
         var qtdBets by remember { mutableStateOf("") }
         val snackBarHostState by remember { mutableStateOf(SnackbarHostState()) }
@@ -51,7 +58,6 @@ fun MegaScreen() {
         val keyboardController = LocalSoftwareKeyboardController.current
         val scrollState = rememberScrollState()
         val scope = rememberCoroutineScope()
-
 
         Column(
             verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -104,10 +110,13 @@ fun MegaScreen() {
                         }
                     } else {
                         result = ""
+                        resultsToSave.clear()
 
                         for (i in 1..bets) {
+                            val res = numberGenerator(numbers)
+                            resultsToSave.add(res)
                             result += "[$i]"
-                            result += numberGenerator(numbers)
+                            result += res
                             result += "\n\n"
                         }
                         showAlertDialog = true
@@ -140,8 +149,17 @@ fun MegaScreen() {
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showAlertDialog = false }) {
-                        Text(text = stringResource(android.R.string.cancel))
+                    TextButton(onClick = {
+                        Thread {
+                            for (res in resultsToSave) {
+                                val bet = Bet(type = "megasena", numbers = res)
+                                db.betDao().insert(bet)
+                            }
+                        }.start()
+
+                        showAlertDialog = false
+                    }) {
+                        Text(text = stringResource(R.string.save))
                     }
                 },
                 title = {
